@@ -7,7 +7,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - name: clone        
+        run: |
+          git clone https://github.com/dotnet/SqlClient.git
+          cd SqlClient           
       - uses: microsoft/setup-msbuild@v1.0.2
       - uses: nuget/setup-nuget@v1
       - run: choco install dotnet4.6.1
