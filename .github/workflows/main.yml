@@ -20,59 +20,53 @@ jobs:
       - name: workaround netcore
         shell: powershell
         run: |
-          $path = 'src/Microsoft.Data.SqlClient/netcore/src/Microsoft/Data/SqlClient/TdsParser.cs'
-          $content = Get-Content $path -Raw
-          $content = $content.Replace(
-            'SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);',
-            '// SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);'
-          ).Replace(
-            'PreLoginHandshakeStatus status = ConsumePreLoginHandshake(
-                encrypt,
-                trustServerCert,
-                integratedSecurity,
-                out marsCapable,
-                out _connHandler._fedAuthRequired,
-                isTlsFirst,
-                serverCertificateFilename);',
-            'PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;'
-          )
-          $content | Set-Content -Path $path
+            $path = 'src/Microsoft.Data.SqlClient/netcore/src/Microsoft/Data/SqlClient/TdsParser.cs'
+            $content = Get-Content $path -Raw
+            $content = $content.Replace(
+                'SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);',
+                '// SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);'
+            ).Replace(
+                'PreLoginHandshakeStatus status = ConsumePreLoginHandshake(
+                    encrypt,
+                    trustServerCert,
+                    integratedSecurity,
+                    out marsCapable,
+                    out _connHandler._fedAuthRequired,
+                    isTlsFirst,
+                    serverCertificateFilename);',
+                'PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;'
+            )
+            $content | Set-Content -Path $path
       - name: workaround netfx
         shell: powershell
         run: |
-          $path = 'src/Microsoft.Data.SqlClient/netfx/src/Microsoft/Data/SqlClient/TdsParser.cs'
-          $content = Get-Content $path -Raw
-          $content = $content.Replace(
-          'SendPreLoginHandshake(
-                instanceName,
-                encrypt,
-                integratedSecurity,
-                !string.IsNullOrEmpty(certificate),
-                useOriginalAddressInfo,
-                serverCertificateFilename,
-                serverCallback,
-                clientCallback);',
-          '// SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, !string.IsNullOrEmpty(certificate), useOriginalAddressInfo, serverCertificateFilename, serverCallback, clientCallback);'
-          ).Replace(
-          'PreLoginHandshakeStatus status = ConsumePreLoginHandshake(
-                authType,
-                encrypt,
-                trustServerCert,
-                integratedSecurity,
-                serverCallback,
-                clientCallback,
-                out marsCapable,
-                out _connHandler._fedAuthRequired,
-                isTlsFirst,
-                serverCertificateFilename);',
-          'PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;'
-          ).Replace(
-          'out marsCapable,
-          out _connHandler._fedAuthRequired,',
-          '//out marsCapable,
-          //out _connHandler._fedAuthRequired,'
-          )
-          $content | Set-Content -Path $path
+            $path = 'src/Microsoft.Data.SqlClient/netfx/src/Microsoft/Data/SqlClient/TdsParser.cs'
+            $content = Get-Content $path -Raw
+            $content = $content.Replace(
+            'SendPreLoginHandshake(
+                            instanceName,
+                            encrypt,
+                            integratedSecurity,
+                            serverCertificateFilename);',
+            '// SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);'
+            ).Replace(
+            'PreLoginHandshakeStatus status = ConsumePreLoginHandshake(
+                            authType,
+                            encrypt,
+                            trustServerCert,
+                            integratedSecurity,
+                            out marsCapable,
+                            out _connHandler._fedAuthRequired,
+                            isTlsFirst,
+                            serverCertificateFilename);',
+            'PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;'
+            ).Replace(
+            'out marsCapable,
+                                out _connHandler._fedAuthRequired,',
+            '//out marsCapable,
+            //out _connHandler._fedAuthRequired,'
+            )
+            $content | Set-Content -Path $path
       - name: rename
         shell: powershell
         run: |
