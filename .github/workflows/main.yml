@@ -65,11 +65,6 @@ jobs:
                             isTlsFirst,
                             serverCertificateFilename);',
             'PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;'
-            ).Replace(
-            'out marsCapable,
-                                out _connHandler._fedAuthRequired,',
-            '//out marsCapable,
-            //out _connHandler._fedAuthRequired,'
             )
             $content | Set-Content -Path $path
       - name: rename
@@ -85,11 +80,5 @@ jobs:
           $spec.package.metadata.releaseNotes = 'https://github.com/rabotaua/SqlClient'
           $spec.package.metadata.copyright = 'robota.ua'
           $spec.Save($file.FullName)
-      - run: |
-                msbuild /t:BuildAllConfigurations /p:Configuration=Release /p:NugetPackageVersion=4.0.${{ github.run_number }}
-                dotnet nuget push packages/Rabota.Data.SqlClient.4.0.${{ github.run_number }}.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json          
-      - run: dir packages
-      - uses: actions/upload-artifact@v4
-        with:
-          name: nuget
-          path: packages/*.nupkg
+      - run: msbuild /t:BuildAllConfigurations /p:Configuration=Release /p:NugetPackageVersion=4.0.${{ github.run_number }}
+      - run: dotnet nuget push packages/Rabota.Data.SqlClient.4.0.${{ github.run_number }}.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json                            
