@@ -79,7 +79,7 @@ jobs:
       - name: rename
         shell: powershell
         run: |
-          $file = Get-Item tools/specs/Microsoft.Data.SqlClient.nuspec
+          $file = Get-Item SqlClient/tools/specs/Microsoft.Data.SqlClient.nuspec
           $spec = [xml] (Get-Content $file.FullName)
           $spec.package.metadata.id = 'Rabota.Data.SqlClient'
           $spec.package.metadata.title = 'Rabota.Data.SqlClient'
