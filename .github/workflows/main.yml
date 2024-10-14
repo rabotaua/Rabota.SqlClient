@@ -97,7 +97,7 @@ jobs:
           $spec.Save($file.FullName)
       - run: |
                 msbuild /t:BuildAllConfigurations /p:Configuration=Release /p:NugetPackageVersion=4.0.${{ github.run_number }}
-                dotnet nuget push Rabota.Data.SqlClient.4.0.${{ github.run_number }}.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json          
+                dotnet nuget push packages/Rabota.Data.SqlClient.4.0.${{ github.run_number }}.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json          
       - run: dir packages
       - uses: actions/upload-artifact@v4
         with:
