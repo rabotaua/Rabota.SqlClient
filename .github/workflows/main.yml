@@ -32,13 +32,13 @@ jobs:
                 '// SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);'
             ).Replace(
                 'PreLoginHandshakeStatus status = ConsumePreLoginHandshake(
-                    encrypt,
-                    trustServerCert,
-                    integratedSecurity,
-                    out marsCapable,
-                    out _connHandler._fedAuthRequired,
-                    isTlsFirst,
-                    serverCertificateFilename);',
+                            encrypt,
+                            trustServerCert,
+                            integratedSecurity,
+                            out marsCapable,
+                            out _connHandler._fedAuthRequired,
+                            isTlsFirst,
+                            serverCertificateFilename);',
                 'PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;'
             )
             $content | Set-Content -Path $path
@@ -65,6 +65,11 @@ jobs:
                             isTlsFirst,
                             serverCertificateFilename);',
             'PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;'
+            ).Replace(
+            'out marsCapable,
+                                out _connHandler._fedAuthRequired,',
+            'out var marsCapableStub,
+                                out var _connHandler_fedAuthRequiredStub,'                        
             )
             $content | Set-Content -Path $path
       - name: rename
