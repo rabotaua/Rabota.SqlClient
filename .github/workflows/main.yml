@@ -89,7 +89,7 @@ jobs:
           $spec.package.metadata.releaseNotes = 'https://github.com/rabotaua/SqlClient'
           $spec.package.metadata.copyright = 'robota.ua'
           $spec.Save($file.FullName)
-      - run: msbuild /t:BuildAllConfigurations /p:Configuration=Release /p:NugetPackageVersion=4.0.${{ github.run_number }}
+      - run: msbuild SqlClient /t:BuildAllConfigurations /p:Configuration=Release /p:NugetPackageVersion=4.0.${{ github.run_number }}
       - run: dir packages
       - uses: actions/upload-artifact@v4
         with:
