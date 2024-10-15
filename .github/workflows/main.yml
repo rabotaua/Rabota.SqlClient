@@ -26,7 +26,7 @@ jobs:
           $path = 'src/Microsoft.Data.SqlClient/netcore/src/Microsoft/Data/SqlClient/TdsParser.cs'
           $content = Get-Content $path -Raw
           $content = [regex]::Replace($content, '(private\s+void\s+SendPreLoginHandshake\([\s\S]+?\{)', '$1 return;')
-          $content = [regex]::Replace($content, '(private\s+PreLoginHandshakeStatus\s+ConsumePreLoginHandshake\([\s\S]+?\{)', 'marsCapable = _fMARS;fedAuthRequired = false;$1 return PreLoginHandshakeStatus.Successful;')
+          $content = [regex]::Replace($content, '(private\s+PreLoginHandshakeStatus\s+ConsumePreLoginHandshake\([\s\S]+?\{)', '$1 marsCapable = _fMARS;fedAuthRequired = false;return PreLoginHandshakeStatus.Successful;')
           $content | Set-Content -Path $path
       # - name: workaround netfx
       #   shell: powershell
