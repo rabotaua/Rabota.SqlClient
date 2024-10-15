@@ -9,6 +9,7 @@
 ```bash
 # get library sources
 git clone https://github.com/dotnet/SqlClient
+git checkout tags/v5.2.2
 
 # commentout unwanted code
 sed s/tls_handshake.../\/\/ tls_handshake.../g -i src/path/to/Tds.cs
