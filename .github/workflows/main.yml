@@ -26,7 +26,7 @@ jobs:
           $path = 'src/Microsoft.Data.SqlClient/netcore/src/Microsoft/Data/SqlClient/TdsParser.cs'
           $content = Get-Content $path -Raw
           $content = $content.Replace('SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);', '// SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);')
-          $content = [regex]::Replace($content, 'PreLoginHandshakeStatus status = ConsumePreLoginHandshake\([\s\S]+?\);', 'PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;')
+          $content = [regex]::Replace($content, '(PreLoginHandshakeStatus status = ConsumePreLoginHandshake\([\s\S]+?\);)', '$1 status = PreLoginHandshakeStatus.Successful;')
           $content | Set-Content -Path $path
       # - name: workaround netfx
       #   shell: powershell
@@ -49,5 +49,5 @@ jobs:
           $spec.package.metadata.releaseNotes = 'https://github.com/rabotaua/Rabota.SqlClient'
           $spec.package.metadata.copyright = 'robota.ua'
           $spec.Save($file.FullName)
-      - run: msbuild /t:BuildAllConfigurations /p:Configuration=Release /p:NugetPackageVersion=${{ github.event.inputs.tag }}.${{ github.run_number }} /p:nowarn=0162
+      - run: msbuild /t:BuildAllConfigurations /p:Configuration=Release /p:NugetPackageVersion=${{ github.event.inputs.tag }}.${{ github.run_number }}
       # - run: dotnet nuget push packages/Rabota.Data.SqlClient.${{ github.event.inputs.tag }}.${{ github.run_number }}.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json
