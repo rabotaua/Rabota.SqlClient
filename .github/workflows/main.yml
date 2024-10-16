@@ -34,7 +34,7 @@ jobs:
           $path = 'src/Microsoft.Data.SqlClient/netfx/src/Microsoft/Data/SqlClient/TdsParser.cs'
           $content = Get-Content $path -Raw
           $content = [regex]::Replace($content, 'SendPreLoginHandshake\([a-zA-Z0-9,!\s\(\)\.]+?\);', '// SendPreLoginHandshake(...);')
-          $content = [regex]::Replace($content, 'PreLoginHandshakeStatus status\s*=\s*ConsumePreLoginHandshake\s*\([\s\S]+?\);', 'PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;')
+          $content = [regex]::Replace($content, 'PreLoginHandshakeStatus status = ConsumePreLoginHandshake\([a-zA-Z0-9,!_\s\(\)\.]+?\);', 'PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;')
           $content | Set-Content -Path $path
       - name: rename
         shell: powershell
