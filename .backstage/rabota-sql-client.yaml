@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: rabota-sql-client
+  annotations:
+    github.com/project-slug: rabotaua/Rabota.SqlClient
+  tags:
+    - unknown-technology
+    - codesnoop
+spec:
+  owner: robota.ua
