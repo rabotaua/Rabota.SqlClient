@@ -27,5 +27,5 @@ jobs:
           $spec.package.metadata.authors = 'robota.ua'
           $spec.package.metadata.copyright = 'robota.ua'
           $spec.Save($file.FullName)
-      - run: msbuild /t:BuildAllConfigurations /p:Configuration=Release /p:NugetPackageVersion=${{ github.event.inputs.tag }}.${{ github.run_number }}
-      - run: dotnet nuget push packages/Rabota.Data.SqlClientV2.${{ github.event.inputs.tag }}.${{ github.run_number }}.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json
+      - run: msbuild /t:BuildAllConfigurations /p:Configuration=Release /p:NugetPackageVersion=6.0.1.${{ github.run_number }}
+      - run: dotnet nuget push packages/Rabota.Data.SqlClientV2.6.0.1.${{ github.run_number }}.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json
