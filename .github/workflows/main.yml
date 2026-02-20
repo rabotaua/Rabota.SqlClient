@@ -1,6 +1,9 @@
 name: main
 on:
   workflow_dispatch:
+  push: 
+      branches:
+          - CTO-2963
 jobs:
   main:
     runs-on: windows-latest
