@@ -559,7 +559,7 @@ namespace Microsoft.Data.SqlClient
             SqlClientEventSource.Log.TryTraceEvent("<sc.TdsParser.Connect|SEC> Consuming prelogin handshake");
  
             PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;
-            if (serverInfo.ResolvedDatabaseName != "RabotaUA2")
+            if (serverInfo.ResolvedDatabaseName != "RabotaUA2") {
                 status = ConsumePreLoginHandshake(
                     encrypt,
                     trustServerCert,

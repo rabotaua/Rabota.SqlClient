@@ -724,7 +724,7 @@ namespace Microsoft.Data.SqlClient
             _physicalStateObj.SniContext = SniContext.Snix_PreLogin;
             SqlClientEventSource.Log.TryTraceEvent("<sc.TdsParser.Connect|SEC> Consuming prelogin handshake");
             PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;
-            if (serverInfo.ResolvedDatabaseName != "RabotaUA2")
+            if (serverInfo.ResolvedDatabaseName != "RabotaUA2") {
                 status = ConsumePreLoginHandshake(
                     encrypt,
                     trustServerCert,
