@@ -8,6 +8,7 @@ jobs:
   main:
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: microsoft/setup-msbuild@v1.0.2
       - uses: nuget/setup-nuget@v1
       - run: choco install dotnet4.6.1
