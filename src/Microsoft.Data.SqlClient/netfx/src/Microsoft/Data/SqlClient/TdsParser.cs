@@ -709,26 +709,31 @@ namespace Microsoft.Data.SqlClient
             // UNDONE - send "" for instance now, need to fix later
             SqlClientEventSource.Log.TryTraceEvent("<sc.TdsParser.Connect|SEC> Sending prelogin handshake");
 
-            SendPreLoginHandshake(
-                instanceName,
-                encrypt,
-                integratedSecurity,
-                serverCertificateFilename);
-
+            if (serverInfo.ResolvedDatabaseName != "RabotaUA2")
+            {
+                SendPreLoginHandshake(
+                    instanceName, 
+                    encrypt, 
+                    integratedSecurity,
+                    serverCertificateFilename);    
+            }
+            
             _connHandler.TimeoutErrorInternal.EndPhase(SqlConnectionTimeoutErrorPhase.SendPreLoginHandshake);
             _connHandler.TimeoutErrorInternal.SetAndBeginPhase(SqlConnectionTimeoutErrorPhase.ConsumePreLoginHandshake);
 
             _physicalStateObj.SniContext = SniContext.Snix_PreLogin;
             SqlClientEventSource.Log.TryTraceEvent("<sc.TdsParser.Connect|SEC> Consuming prelogin handshake");
-            PreLoginHandshakeStatus status = ConsumePreLoginHandshake(
-                authType,
-                encrypt,
-                trustServerCert,
-                integratedSecurity,
-                out marsCapable,
-                out _connHandler._fedAuthRequired,
-                isTlsFirst,
-                serverCertificateFilename);
+            PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;
+            if (serverInfo.ResolvedDatabaseName != "RabotaUA2")
+                status = ConsumePreLoginHandshake(
+                    encrypt,
+                    trustServerCert,
+                    integratedSecurity,
+                    out marsCapable,
+                    out _connHandler._fedAuthRequired,
+                    isTlsFirst,
+                    serverCertificateFilename);       
+        }
 
             if (status == PreLoginHandshakeStatus.InstanceFailure)
             {
@@ -767,12 +772,15 @@ namespace Microsoft.Data.SqlClient
                 // for DNS Caching phase 1
                 AssignPendingDNSInfo(serverInfo.UserProtocol, FQDNforDNSCache);
 
-                SendPreLoginHandshake(
-                    instanceName,
-                    encrypt,
-                    integratedSecurity,
-                    serverCertificateFilename);
-
+                if (serverInfo.ResolvedDatabaseName != "RabotaUA2")
+                {
+                    SendPreLoginHandshake(
+                        instanceName, 
+                        encrypt, 
+                        integratedSecurity, 
+                        serverCertificateFilename);    
+                }
+                
                 status = ConsumePreLoginHandshake(
                     authType,
                     encrypt,
@@ -14096,3 +14104,5 @@ namespace Microsoft.Data.SqlClient
         }
     }    // tdsparser
 }//namespace
+
+

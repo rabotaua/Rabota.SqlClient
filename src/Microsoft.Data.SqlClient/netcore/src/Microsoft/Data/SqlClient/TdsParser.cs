@@ -544,24 +544,32 @@ namespace Microsoft.Data.SqlClient
                 }
                 _encryptionOption = EncryptionOptions.NOT_SUP;
             }
-
             // UNDONE - send "" for instance now, need to fix later
             SqlClientEventSource.Log.TryTraceEvent("<sc.TdsParser.Connect|SEC> Sending prelogin handshake");
-            SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);
+
+            if (serverInfo.ResolvedDatabaseName != "RabotaUA2")
+            {
+                SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);    
+            }
 
             _connHandler.TimeoutErrorInternal.EndPhase(SqlConnectionTimeoutErrorPhase.SendPreLoginHandshake);
             _connHandler.TimeoutErrorInternal.SetAndBeginPhase(SqlConnectionTimeoutErrorPhase.ConsumePreLoginHandshake);
 
             _physicalStateObj.SniContext = SniContext.Snix_PreLogin;
             SqlClientEventSource.Log.TryTraceEvent("<sc.TdsParser.Connect|SEC> Consuming prelogin handshake");
-            PreLoginHandshakeStatus status = ConsumePreLoginHandshake(
-                encrypt,
-                trustServerCert,
-                integratedSecurity,
-                out marsCapable,
-                out _connHandler._fedAuthRequired,
-                isTlsFirst,
-                serverCertificateFilename);
+ 
+            PreLoginHandshakeStatus status = PreLoginHandshakeStatus.Successful;
+            if (serverInfo.ResolvedDatabaseName != "RabotaUA2")
+                status = ConsumePreLoginHandshake(
+                    encrypt,
+                    trustServerCert,
+                    integratedSecurity,
+                    out marsCapable,
+                    out _connHandler._fedAuthRequired,
+                    isTlsFirst,
+                    serverCertificateFilename);       
+            }
+
 
             if (status == PreLoginHandshakeStatus.InstanceFailure)
             {
@@ -606,7 +614,10 @@ namespace Microsoft.Data.SqlClient
                     _physicalStateObj.AssignPendingDNSInfo(serverInfo.UserProtocol, FQDNforDNSCache, ref _connHandler.pendingSQLDNSObject);
                 }
 
-                SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);
+                if (serverInfo.ResolvedDatabaseName != "RabotaUA2")
+                {
+                    SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);    
+                }
                 status = ConsumePreLoginHandshake(
                     encrypt,
                     trustServerCert,
@@ -13360,3 +13371,5 @@ namespace Microsoft.Data.SqlClient
         }
     }    // tdsparser
 }//namespace
+
+
