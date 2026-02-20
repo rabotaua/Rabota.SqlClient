@@ -1,117 +1,148 @@
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/dotnet/sqlclient/master/LICENSE)
-[![Nuget](https://img.shields.io/nuget/dt/Microsoft.Data.SqlClient?label=Nuget.org%20Downloads&style=flat-square&color=blue)](https://www.nuget.org/packages/Microsoft.Data.SqlClient)
-[![Build status](https://sqlclientdrivers.visualstudio.com/public/_apis/build/status/ADO/CI-SqlClient)](https://sqlclientdrivers.visualstudio.com/public/_build/latest?definitionId=1879)
+# Rabota.SqlClient
 
-# Microsoft SqlClient Data Provider for SQL Server
+Тут живет подхаченый форк Microsoft.Data.SqlClient библиотеки
 
-Microsoft.Data.SqlClient is a .NET data provider for [Microsoft SQL Server]([url](https://aka.ms/sql)) and the [Azure SQL]([url](https://aka.ms/azure_sql)) family of databases. It grew from a union of the two System.Data.SqlClient components which live independently in .NET Framework and .NET Core. Going forward, support for new SQL Server and Azure SQL features will only be implemented in Microsoft.Data.SqlClient.
+## how it works?
 
-## Supportability
+псевдокод:
 
-The Microsoft.Data.SqlClient package supports the following environments:
+```bash
+# get library sources
+git clone https://github.com/dotnet/SqlClient
+git checkout tags/v5.2.2
 
-- .NET Framework 4.6.2+
-- .NET 8.0+
+# commentout unwanted code
+sed s/tls_handshake.../\/\/ tls_handshake.../g -i src/path/to/Tds.cs
 
-## Download
+# packa and publish nuget package
+dotnet pack
+dotnet publish
+```
 
-The Microsoft.Data.SqlClient NuGet package is available on [NuGet.org](https://www.nuget.org/packages/Microsoft.Data.SqlClient/).
+## versioning
 
-## SNI Package References
+все это дело запускается вручную (не предпологается что мы каждый день обновляем это дело)
 
-When targeting .NET Framework on Windows, a package reference to [Microsoft.Data.SqlClient.SNI](https://www.nuget.org/packages/Microsoft.Data.SqlClient.SNI/) loads native `Microsoft.Data.SqlClient.SNI.<platform>.dll` libraries into the client's build directories.
+при запуске мы явно указываем версию которую хотим подхачить (дело в том что мы наверное не хотим прям мастер каждый раз забирать, бо можем утянуть какие то не готовые кандидат релизы)
 
-When targeting .NET on Windows, a package reference to [Microsoft.Data.SqlClient.SNI.runtime](https://www.nuget.org/packages/Microsoft.Data.SqlClient.SNI.runtime/) loads `arm64`, `x64` and `x86` native `Microsoft.Data.SqlClient.SNI.dll` libraries into subdirectories in the client's build directory.
+публикуемая версия будет иметь такой же номер плюс номер сборки в github
 
-## Helpful Links
+так например, если собираем для либы 5.2.2 то наш пакет будет иметь версию 5.2.2.42, где 42 это github build number
 
-| Topic | Link to File |
-| :---- | :------------- |
-| Coding Style | [coding-style.md](coding-style.md) |
-| Guidelines for building the driver | [BUILDGUIDE.md](BUILDGUIDE.md) |
-| Guidelines for Contributors | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| Changelog for all driver releases | [CHANGELOG.md](CHANGELOG.md) |
-| Support Policy | [SUPPORT.md](SUPPORT.md) |
-| Code of Conduct | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
-| Copyright Information | [COPYRIGHT.md](COPYRIGHT.md) |
+## local testing
 
-## Our Featured Contributors
+за для локальной проверки, делаем следующее
 
-Special thanks to everyone who has contributed to the project.
-We thank you for your continuous support in improving the SqlClient library!
+```bash
+git clone https://github.com/dotnet/SqlClient
+```
 
-- Edward Neal ([@edwardneal](https://github.com/edwardneal))
-- Erik Ejlskov Jensen ([@ErikEJ](https://github.com/ErikEJ))
-- Michel Zehnder ([@MichelZ](https://github.com/MichelZ))
-- Shay Rojansky ([@roji](https://github.com/roji))
-- Phillip Haydon ([@phillip-haydon](https://github.com/phillip-haydon))
-- Rasmus Melchior Jacobsen ([@rmja](https://github.com/rmja))
-- Robin Sue ([@Suchiman](https://github.com/Suchiman))
-- Simon Cropp ([@SimonCropp](https://github.com/SimonCropp))
-- Stefán Jökull Sigurðarson ([@stebet](https://github.com/stebet))
-- Stephen Toub ([@stephentoub](https://github.com/stephentoub))
-- Wraith ([@Wraith2](https://github.com/Wraith2))
+далее открываем повершел и забираем куски кода из workflow и прогоняем их убеждаясь что оно находит и комментит интересующие нас куски кода (git status будет показывать изменения)
 
-Up-to-date list of contributors: [Contributor Insights](https://github.com/dotnet/SqlClient/graphs/contributors)
+```ps1
+$path = 'path/to/src/Microsoft.Data.SqlClient/netcore/src/Microsoft/Data/SqlClient/TdsParser.cs'
+$content = Get-Content $path -Raw
+$content = [regex]::Replace($content, 'SendPreLoginHandshake\([\s\S]+?\);', '// SendPreLoginHandshake(instanceName, encrypt, integratedSecurity, serverCertificateFilename);')
+# ...
+$content | Set-Content -Path $path
+```
 
-## Release Notes
+## smoke test
 
-All preview and stable driver release notes are available under [release-notes](release-notes).
+для проверки боем нам нужно собрать и опубликовать свежу сборку запустив workflow и дождаться пока она появиться в nuget
 
-## Porting from System.Data.SqlClient
+затем в продовском кубере (обязательно продовский, бо там старая база с которой проблемы, в тестовых все будет работать и без этих хаков) делаем вот так:
 
-Refer to [porting-cheat-sheet.md](porting-cheat-sheet.md) for a safe porting experience from System.Data.SqlClient to Microsoft.Data.SqlClient and share your experience with us by enhancing this guide for future developers.
+```bash
+kubectl run mactemp --rm -it --image ubuntu -- bash
+```
 
-## Still have questions?
+далее, внтури поды следующее:
 
-Check out our [FAQ](https://github.com/dotnet/SqlClient/wiki/Frequently-Asked-Questions). Still not answered? Create an [issue](https://github.com/dotnet/SqlClient/issues/new/choose) to ask a question.
+```bash
+apt update
+apt install -y dotnet-sdk-8.0 # со временем устареет
+mkdir ~/mactemp
+cd ~/mactemp
+dotnet new console
+dotnet add package Rabota.Data.SqlClient --version 5.2.2.25 # CHANGE_ME
+cat <<EOT > Program.cs
+using Microsoft.Data.SqlClient;
 
-<!-- BEGIN MICROSOFT SECURITY.MD V0.0.3 BLOCK -->
+using var con = new SqlConnection("...CHANGE_ME...");
+con.Open();
+using var cmd = con.CreateCommand();
+cmd.CommandText = "SELECT TOP 3 Id, Name FROM City";
+var reader = cmd.ExecuteReader();
+while (reader.Read())
+{
+  Console.WriteLine(reader["Id"] + ": " + reader["Name"]);
+}
+EOT
 
-## Security
+dotnet run
+```
 
-Microsoft takes the security of our software products and services seriously, which includes all source code repositories managed through our GitHub organizations, which include [Microsoft](https://github.com/Microsoft), [Azure](https://github.com/Azure), [DotNet](https://github.com/dotnet), [AspNet](https://github.com/aspnet), [Xamarin](https://github.com/xamarin), and [our GitHub organizations](https://opensource.microsoft.com/).
+Примечание: после публикации пакета проходит от пяти до десяти минут прежде чем он появиться в nuget, т.к. с одной стороны кэши, а с другой, там еще пакет проходит "валидацию"
 
-If you believe you have found a security vulnerability in any Microsoft-owned repository that meets Microsoft's [Microsoft's definition of a security vulnerability](https://docs.microsoft.com/en-us/previous-versions/tn-archive/cc751383(v=technet.10)), please report it to us as described below.
+В случае успеха увидим коротенький список городов
 
-## Reporting Security Issues
+Далее просто выполняем команду `exit` кубер сам почистити и удалит поду
 
-**Please do not report security vulnerabilities through public GitHub issues.**
+Все, готово, можно принимать поздравление с публикацией новой версии
 
-Instead, please report them to the Microsoft Security Response Center (MSRC) at [https://msrc.microsoft.com/create-report](https://msrc.microsoft.com/create-report).
+## Исторический контекст
 
-If you prefer to submit without logging in, send email to [secure@microsoft.com](mailto:secure@microsoft.com).  If possible, encrypt your message with our PGP key; please download it from the [Microsoft Security Response Center PGP Key page](https://www.microsoft.com/en-us/msrc/pgp-key-msrc).
+Где то до ковида, когда делали самые первые шаги в докеры, куберы, сервисы и т.п. буквально сразу же обламались - технически не возможно ходить из сервиса бегущего в свежих линуксах в старую базу
 
-You should receive a response within 24 hours. If for some reason you do not, please follow up via email to ensure we received your original message. Additional information can be found at [microsoft.com/msrc](https://www.microsoft.com/msrc).
+Глубоко под капотом оно завязано на TLS handshake, а как следствие, поверх еще и истории с тем что всякие TLS1.0 уже давным давно нигде не работают, а старая база другие, более свежие еще не умеет
 
-Please include the requested information listed below (as much as you can provide) to help us better understand the nature and scope of the possible issue:
+В общем замкнутый круг и мы оказались у разбитого корыта, когда можно было бы опустить руки и сказать - ну все, приехали, остаемся с веб формами, jquery и sql 2005 🤷‍♂️
 
-  * Type of issue (e.g. buffer overflow, SQL injection, cross-site scripting, etc.)
-  * Full paths of source file(s) related to the manifestation of the issue
-  * The location of the affected source code (tag/branch/commit or direct URL)
-  * Any special configuration required to reproduce the issue
-  * Step-by-step instructions to reproduce the issue
-  * Proof-of-concept or exploit code (if possible)
-  * Impact of the issue, including how an attacker might exploit the issue
+## Hack The Library
 
-This information will help us triage your report more quickly.
+Какая идея и как это все происходило
 
-If you are reporting for a bug bounty, more complete reports can contribute to a higher bounty award. Please visit our [Microsoft Bug Bounty Program](https://microsoft.com/msrc/bounty) page for more details about our active programs.
+Ставим полноценную Ubuntu Desktop, всякие там VPN и т.п. что бы она могла достучаться до продовской базы, ставим туда Rider, выкачиваем исходники либы, делаем демо прилоежние и начинаем муторно его дебажить, шаг за шагом пробираясь сквозь дебри либы пока не разберемся на каком именно этапе происходит этот handshake
 
-## Preferred Languages
+Далее, не от хорошей жизни и не имея особо опций, просто закоменчиваем его и внезапно все заводиться
 
-We prefer all communications to be in English.
+## FAQ
 
-## Policy
+**Почему хачим Microsoft.Data.SqlClient, а не System.Data.SqlClient?**
 
-Microsoft follows the principle of [Coordinated Vulnerability Disclosure](https://www.microsoft.com/en-us/msrc/cvd).
+Кануло в лету, сейчас уже не получиться ответить на этот вопрос, изначально, зацепились именно за Microsoft, т.к. с System путаница и не ясно что и как будет когда он предустановлен в рантайме
 
-<!-- END MICROSOFT SECURITY.MD BLOCK -->
+**Зачем мы обновляем эту либу, ведь SQL 2005 уже не обновляется и не поддерживается?**
 
-## License
+Так и есть, и оно какое то время так и было, но потом вылезла новая вводная - чем дальше, тем больше мы пользуем Entity Framework, а он хочет более свежие версии, из-за чего мы вынуждены обновлять это дело в след за обновлениями EF
 
-The Microsoft.Data.SqlClient Driver for SQL Server is licensed under the MIT license. See the [LICENSE](https://github.com/dotnet/SqlClient/blob/master/LICENSE) file for more details.
+**Не будет ли Microsoft ругаться что мы такое делаем?**
 
-## Trademarks
+Нет, единственное что они вышли на связь и попросили всюду добавить дисклеймеры что это не библиотека Microsoft
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow Microsoft's Trademark & Brand Guidelines. Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party's policies.
+# History
+
+## v1
+
+Изначально завели форк либы в [github.com/rabotaua/SqlClient](https://github.com/rabotaua/SqlClient), в этом форке добавили свой github action который вытянув исходники, закоменчивал искомые строки, а далее собирал nuget пакет, который затем публиковался в nuget.org
+
+В целом оно работало, НО, есть один ньюанс - форк и его обновление - может оказаться проблемой, так у нас пролезли не совсем удачные комиты, называется сам не доглядель, из-за которых последующее обновление форка было бы порталом в ад с бесконечными конфликтами
+
+## v1.1
+
+Дальше вылезла необходимость сделать похожый хак только для виндовой сборки - именно начиная с того момента github action разросся и переехал на виндовую машинку и потому оно крепко завязано на это дело
+
+## v1.2
+
+С очередным изменением в исходниках поменялось форматирование, от чего поломались скрипты комментирующие код
+
+## v2
+
+В этом репо все устроено другим образом - мы отказываемся от форка как такового, т.к. он нам по сути то и не нужен
+
+Берем yaml из v1 и просто добавляем первым шагом вычитку репозитория с исходниками
+
+И под шумок, в самом конце, публикацю пакета в nuget.org, дабы не нужно было этого делать руками
+
+Тем самым раз и на всегда закрывая вопрос с форками и их апдейтами, а так же, под шумок, пользуем регулярки, дабы чуть легче переживать изменения форматирования
