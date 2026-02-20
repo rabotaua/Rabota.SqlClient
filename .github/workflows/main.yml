@@ -1,20 +1,10 @@
 name: main
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        type: string
-        description: tag to checkout, must be semver, e.g. 5.2.2, actual list can be found here https://github.com/dotnet/SqlClient/tags
-        required: true
-        default: 5.2.2
 jobs:
   main:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: dotnet/SqlClient
-          ref: v${{ github.event.inputs.tag }}
       - uses: microsoft/setup-msbuild@v1.0.2
       - uses: nuget/setup-nuget@v1
       - run: choco install dotnet4.6.1
